@@ -11,6 +11,9 @@ pub enum BuiltInShader {
     RMSNorm,
     ResidualAdd,
     CrossEntropy,
+    HeadGather,
+    HeadScatter,
+    ZeroTensor,
 
     // --- BACKWARD PASS  ---
     MatMulTrp,
@@ -97,6 +100,22 @@ impl BuiltInShader {
                     TensorMode::Output,
                     TensorMode::Meta,
                 ],
+            ),
+
+            Self::HeadGather => ShaderDef::new(
+                "HeadGather",
+                include_str!("../shaders/head_gather.wgsl"),
+                vec![TensorMode::Input, TensorMode::Output, TensorMode::Meta],
+            ),
+            Self::HeadScatter => ShaderDef::new(
+                "HeadScatter",
+                include_str!("../shaders/head_scatter.wgsl"),
+                vec![TensorMode::Input, TensorMode::Output, TensorMode::Meta],
+            ),
+            Self::ZeroTensor => ShaderDef::new(
+                "ZeroTensor",
+                include_str!("../shaders/zero_tensor.wgsl"),
+                vec![TensorMode::Output, TensorMode::Meta],
             ),
 
             // BACKWARD

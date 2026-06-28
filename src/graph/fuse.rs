@@ -7,12 +7,39 @@ pub fn fuse_compute_graphs(ctx: Arc<WgpuContext>, graphs: &[&ComputeGraph]) -> C
 
     for graph in graphs {
         for node in &graph.nodes {
-            fused.nodes.push(ComputeNode {
-                name: node.name.clone(),
-                pipeline: node.pipeline.clone(),
-                bind_group: node.bind_group.clone(),
-                workgroups: node.workgroups,
-            });
+            let cloned = match node {
+                ComputeNode::Wgpu {
+                    name,
+                    pipeline,
+                    bind_group,
+                    workgroups,
+                } => ComputeNode::Wgpu {
+                    name: name.clone(),
+                    pipeline: pipeline.clone(),
+                    bind_group: bind_group.clone(),
+                    workgroups: *workgroups,
+                },
+                #[cfg(feature = "cuda")]
+                ComputeNode::Cuda {
+                    name,
+                    bindings,
+                    workgroups,
+                } => ComputeNode::Cuda {
+                    name: name.clone(),
+                    bindings: bindings
+                        .iter()
+                        .map(|b| super::CudaNodeBinding {
+                            binding: b.binding,
+                            slice: b.slice.clone(),
+                            mode: b.mode,
+                            size: b.size,
+                            cached_meta: b.cached_meta.clone(),
+                        })
+                        .collect(),
+                    workgroups: *workgroups,
+                },
+            };
+            fused.nodes.push(cloned);
         }
     }
 

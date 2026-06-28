@@ -8,3 +8,13 @@ wgpu = "0.19"
 bytemuck = { version = "1.15", features = ["derive"] }
 pollster = "0.3"
 futures-intrusive = "0.5"
+# NOTE: bumped from the requested 0.13 -> 0.19 because cudarc 0.13's build
+# script doesn't recognize CUDA toolkit 13.3 (installed on this machine) and
+# panics at build time ("Unsupported cuda toolkit version: 13.3"); 0.19 is the
+# latest release and supports newer toolkits.
+cudarc = { version = "0.19", optional = true, features = ["cublas", "nvrtc", "cuda-version-from-build-system"] }
+
+[features]
+default = []
+vulkan = []
+cuda = ["cudarc"]
